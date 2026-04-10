@@ -25,7 +25,6 @@ export default function CeoPage() {
     fetchTasks()
   }, [])
 
-  // Define columns with proper TypeScript types matching DataTable
   const columns: Column[] = [
     { key: 'task', label: 'Task' },
     { key: 'priority', label: 'Priority' },
@@ -42,7 +41,7 @@ export default function CeoPage() {
     return (
       <div className="space-y-6 p-6">
         <h1 className="text-3xl font-bold text-[#091d28]">CEO Dashboard</h1>
-        <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
+        <div className="dukaflo-card dukaflo-card-gold p-8 text-center text-gray-500">
           Loading tasks...
         </div>
       </div>
