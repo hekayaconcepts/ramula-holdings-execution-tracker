@@ -1,12 +1,20 @@
+'use client'
+
+import React from 'react'
+
+interface TableRow {
+  [key: string]: string | number | boolean | null | undefined
+}
+
 interface Column {
-  key: string;
-  label: string;
-  render?: (value: any, row: any) => React.ReactNode;
+  key: keyof TableRow | string
+  label: string
+  render?: (value: unknown, row: TableRow) => React.ReactNode
 }
 
 interface DataTableProps {
-  columns: Column[];
-  data: any[];
+  columns: Column[]
+  data: TableRow[]
 }
 
 export default function DataTable({ columns, data }: DataTableProps) {
@@ -15,7 +23,7 @@ export default function DataTable({ columns, data }: DataTableProps) {
       <div className="dukaflo-card dukaflo-card-gold p-8 text-center">
         <p className="text-brand-navy text-lg">No data available</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -39,7 +47,7 @@ export default function DataTable({ columns, data }: DataTableProps) {
               <tr key={rowIndex} className="hover:bg-brand-light transition-colors">
                 {columns.map((column) => (
                   <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-brand-navy">
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
+                    {column.render ? column.render(row[column.key], row) : String(row[column.key] ?? '—')}
                   </td>
                 ))}
               </tr>
@@ -48,5 +56,5 @@ export default function DataTable({ columns, data }: DataTableProps) {
         </table>
       </div>
     </div>
-  );
+  )
 }
