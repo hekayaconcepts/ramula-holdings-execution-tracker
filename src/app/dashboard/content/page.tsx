@@ -1,31 +1,65 @@
-import { createClient } from '@/utils/supabase/client';
-import DataTable from '@/components/DataTable';
-import StatusBadge from '@/components/StatusBadge';
+'use client'
 
-export default async function ContentPage() {
-  const supabase = createClient();
-  const { data: contentCalendar, error } = await supabase.from('content_calendar').select('*');
+import { createClient } from '@/utils/supabase/client'
+import DataTable, { type Column, type TableRow } from '@/components/DataTable'
+import StatusBadge from '@/components/StatusBadge'
+import { useEffect, useState } from 'react'
 
-  if (error) {
-    return <div className="text-red-500">Error loading content calendar: {error.message}</div>;
-  }
+export default function ContentCalendarPage() {
+  const [contentItems, setContentItems] = useState<TableRow[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const columns = [
+  useEffect(() => {
+    const fetchContent = async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase.from('content_calendar').select('*')
+      
+      if (error) {
+        console.error('Error loading content calendar:', error)
+      } else {
+        setContentItems(data as TableRow[])
+      }
+      setLoading(false)
+    }
+    
+    fetchContent()
+  }, [])
+
+  // Define columns with proper TypeScript types matching DataTable
+  const columns: Column[] = [
     { key: 'title', label: 'Title' },
     { key: 'type', label: 'Type' },
     { 
       key: 'status', 
       label: 'Status',
-      render: (value: string) => <StatusBadge status={value} />
+      render: (value: unknown) => <StatusBadge status={String(value)} />
     },
     { key: 'publish_date', label: 'Publish Date' },
     { key: 'channel', label: 'Channel' },
-  ];
+  ]
+
+  if (loading) {
+    return (
+      <div className="space-y-6 p-6">
+        <h1 className="text-3xl font-bold text-[#091d28]">Content Calendar</h1>
+        <div className="dukaflo-card dukaflo-card-gold p-8 text-center text-gray-500">
+          Loading content items...
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-white">Content Calendar</h1>
-      <DataTable columns={columns} data={contentCalendar || []} />
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-3xl font-bold text-[#091d28]">Content Calendar</h1>
+        <p className="text-gray-600 mt-1">67 content pieces across all brands</p>
+      </div>
+      <DataTable 
+        columns={columns} 
+        data={contentItems} 
+        emptyMessage="No content items found."
+      />
     </div>
-  );
+  )
 }
