@@ -5,45 +5,45 @@ import DataTable, { type Column, type TableRow } from '@/components/DataTable'
 import StatusBadge from '@/components/StatusBadge'
 import { useEffect, useState } from 'react'
 
-export default function ContentCalendarPage() {
-  const [contentItems, setContentItems] = useState<TableRow[]>([])
+export default function CooPage() {
+  const [cooTasks, setCooTasks] = useState<TableRow[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchContent = async () => {
+    const fetchTasks = async () => {
       const supabase = createClient()
-      const { data, error } = await supabase.from('content_calendar').select('*')
+      const { data, error } = await supabase.from('coo_tasks').select('*')
       
       if (error) {
-        console.error('Error loading content calendar:', error)
+        console.error('Error loading COO tasks:', error)
       } else {
-        setContentItems(data as TableRow[])
+        setCooTasks(data as TableRow[])
       }
       setLoading(false)
     }
     
-    fetchContent()
+    fetchTasks()
   }, [])
 
   // Define columns with proper TypeScript types matching DataTable
   const columns: Column[] = [
-    { key: 'title', label: 'Title' },
-    { key: 'type', label: 'Type' },
+    { key: 'task', label: 'Task' },
+    { key: 'priority', label: 'Priority' },
     { 
       key: 'status', 
       label: 'Status',
       render: (value: unknown) => <StatusBadge status={String(value)} />
     },
-    { key: 'publish_date', label: 'Publish Date' },
-    { key: 'channel', label: 'Channel' },
+    { key: 'due_date', label: 'Due Date' },
+    { key: 'notes', label: 'Notes' },
   ]
 
   if (loading) {
     return (
       <div className="space-y-6 p-6">
-        <h1 className="text-3xl font-bold text-[#091d28]">Content Calendar</h1>
+        <h1 className="text-3xl font-bold text-[#091d28]">COO Dashboard</h1>
         <div className="dukaflo-card dukaflo-card-gold p-8 text-center text-gray-500">
-          Loading content items...
+          Loading tasks...
         </div>
       </div>
     )
@@ -52,13 +52,13 @@ export default function ContentCalendarPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#091d28]">Content Calendar</h1>
-        <p className="text-gray-600 mt-1">67 content pieces across all brands</p>
+        <h1 className="text-3xl font-bold text-[#091d28]">COO Dashboard</h1>
+        <p className="text-gray-600 mt-1">Operational tasks for Moyo (Raymond)</p>
       </div>
       <DataTable 
         columns={columns} 
-        data={contentItems} 
-        emptyMessage="No content items found."
+        data={cooTasks} 
+        emptyMessage="No COO tasks found."
       />
     </div>
   )
