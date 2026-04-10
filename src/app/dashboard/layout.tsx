@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/client'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
+import Navigation from '@/components/Navigation'
 
 export default async function DashboardLayout({
   children,
@@ -15,15 +15,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: '#091d28', color: '#d49a30' }}>
-      <aside className="w-64 p-4 border-r">
-        <nav>
-          <Link href="/dashboard/tasks" className="block py-2 hover:underline">
-            Tasks
-          </Link>
-        </nav>
-      </aside>
-      <main className="flex-1 p-4">
+    <div className="min-h-screen" style={{ backgroundColor: '#091d28' }}>
+      <Navigation user={user} />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
     </div>

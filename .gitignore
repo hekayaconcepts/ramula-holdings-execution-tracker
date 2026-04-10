@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 .next/
+out/
 
 # Environment variables
 .env
@@ -18,17 +19,6 @@ build/
 *.swp
 *.swo
 
-# Logs
-*.log
-
-# Temporary files
-*.tmp
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
 # Python
 __pycache__/
 *.pyc
@@ -38,19 +28,22 @@ __pycache__/
 env/
 venv/
 .venv/
-pip-log.txt
-pip-delete-this-directory.txt
-*.so
-.Python
-.pytest_cache/
-.mypy_cache/
+.ENV
+.python-version
+
+# Logs
+*.log
 
 # OS generated files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Temporary files
+*.tmp
+*.temp
 ```

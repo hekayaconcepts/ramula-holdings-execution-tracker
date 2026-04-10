@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/client';
 import DataTable from '@/components/DataTable';
 import StatusBadge from '@/components/StatusBadge';
 
-export default async function TasksPage() {
+export default async function TrackerPage() {
   const supabase = createClient();
   const { data: tasks, error } = await supabase.from('tasks').select('*');
 
@@ -24,7 +24,7 @@ export default async function TasksPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-white">Tasks</h1>
+      <h1 className="text-3xl font-bold text-white">Task Tracker</h1>
       <DataTable columns={columns} data={tasks || []} />
     </div>
   );
