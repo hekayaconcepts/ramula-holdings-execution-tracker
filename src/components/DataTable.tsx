@@ -2,32 +2,41 @@
 
 import React from 'react'
 
-interface TableRow {
+// EXPORT these interfaces so other pages can import them
+export interface TableRow {
   [key: string]: string | number | boolean | null | undefined
 }
 
-interface Column {
+export interface Column {
   key: keyof TableRow | string
   label: string
+  sortable?: boolean
   render?: (value: unknown, row: TableRow) => React.ReactNode
 }
 
-interface DataTableProps {
+export interface DataTableProps {
   columns: Column[]
   data: TableRow[]
+  emptyMessage?: string
+  className?: string
 }
 
-export default function DataTable({ columns, data }: DataTableProps) {
+export default function DataTable({
+  columns,
+  data,
+  emptyMessage = 'No data available',
+  className = ''
+}: DataTableProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="dukaflo-card dukaflo-card-gold p-8 text-center">
-        <p className="text-brand-navy text-lg">No data available</p>
+      <div className={`dukaflo-card dukaflo-card-gold p-8 text-center ${className}`}>
+        <p className="text-brand-navy text-lg">{emptyMessage}</p>
       </div>
     )
   }
 
   return (
-    <div className="dukaflo-card dukaflo-card-gold overflow-hidden">
+    <div className={`dukaflo-card dukaflo-card-gold overflow-hidden ${className}`}>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-brand-light">
@@ -47,7 +56,9 @@ export default function DataTable({ columns, data }: DataTableProps) {
               <tr key={rowIndex} className="hover:bg-brand-light transition-colors">
                 {columns.map((column) => (
                   <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-brand-navy">
-                    {column.render ? column.render(row[column.key], row) : String(row[column.key] ?? '—')}
+                    {column.render
+                      ? column.render(row[column.key], row)
+                      : String(row[column.key] ?? '—')}
                   </td>
                 ))}
               </tr>
