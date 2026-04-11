@@ -14,17 +14,23 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    if (error) {
-      setError(error.message)
-    } else {
-      router.push('/dashboard')
-      router.refresh()
+      if (error) {
+        setError(error.message)
+      } else {
+        // Wait a moment for cookies to be set, then refresh and redirect
+        await new Promise(resolve => setTimeout(resolve, 500))
+        router.refresh()
+        router.push('/dashboard')
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
     }
   }
 
