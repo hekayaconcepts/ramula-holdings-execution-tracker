@@ -1,26 +1,108 @@
-import { createClient } from '@/utils/supabase/client';
-import DataTable from '@/components/DataTable';
+'use client'
 
-export default async function LegalPage() {
-  const supabase = createClient();
-  const { data: legalIp, error } = await supabase.from('legal_ip').select('*');
+import { createClient } from '@/utils/supabase/client'
+import DataTable, { type Column, type TableRow } from '@/components/DataTable'
+import StatusBadge from '@/components/StatusBadge'
+import { useEffect, useState } from 'react'
 
-  if (error) {
-    return <div className="text-red-500">Error loading legal IP: {error.message}</div>;
+export default function LegalPage() {
+  const [legalTasks, setLegalTasks] = useState<TableRow[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchTasks = async () => {
+    const supabase = createClient()
+    const { data, error } = await supabase.from('tasks').select('*').eq('owner', 'Wangui Kihiu').order('task_number', { ascending: true })
+    
+    if (error) {
+      console.error('Error loading Legal tasks:', error)
+    } else {
+      setLegalTasks(data as unknown as TableRow[])
+    }
+    setLoading(false)
   }
 
-  const columns = [
-    { key: 'name', label: 'Name' },
-    { key: 'type', label: 'Type' },
-    { key: 'status', label: 'Status' },
-    { key: 'filing_date', label: 'Filing Date' },
-    { key: 'description', label: 'Description' },
-  ];
+  useEffect(() => {
+    fetchTasks()
+  }, [])
+
+  const handleUpdate = async (id: string | number, field: string, value: any) => {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('tasks')
+      .update({ [field]: value })
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error updating task:', error)
+      alert('Failed to update task')
+    } else {
+      setLegalTasks(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t))
+    }
+  }
+
+  const columns: Column[] = [
+    { key: 'task_number', label: 'ID' },
+    { key: 'venture_name', label: 'Venture' },
+    { key: 'description', label: 'Task' },
+    { 
+      key: 'status', 
+      label: 'Status',
+      editable: true,
+      editType: 'select',
+      options: ['Not Started', 'In Progress', 'Done', 'Blocked', 'Deferred'],
+      render: (value: unknown) => <StatusBadge status={String(value)} />
+    },
+    { 
+      key: 'priority', 
+      label: 'Priority',
+      editable: true,
+      editType: 'select',
+      options: ['Critical', 'High', 'Medium', 'Low'],
+      render: (value: unknown) => <StatusBadge status={String(value)} type="priority" />
+    },
+    { 
+      key: 'percent_done', 
+      label: '% Done', 
+      editable: true, 
+      editType: 'number',
+      render: (value: unknown) => (
+        <div className="flex items-center space-x-2">
+          <div className="w-16 bg-gray-200 rounded-full h-1.5">
+            <div 
+              className="bg-[#d49a30] h-1.5 rounded-full" 
+              style={{ width: `${Number(value)}%` }}
+            ></div>
+          </div>
+          <span className="text-xs">{Number(value)}%</span>
+        </div>
+      )
+    },
+    { key: 'due_date', label: 'Due Date', editable: true, editType: 'date' },
+  ]
+
+  if (loading) {
+    return (
+      <div className="space-y-6 p-6">
+        <h1 className="text-3xl font-bold text-[#091d28]">Legal & IP Dashboard</h1>
+        <div className="bg-white border border-gray-200 p-8 text-center text-gray-500 rounded-lg shadow-sm">
+          Loading legal tasks...
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-white">Legal & IP Management</h1>
-      <DataTable columns={columns} data={legalIp || []} />
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-3xl font-bold text-[#091d28]">Legal & IP Dashboard</h1>
+        <p className="text-gray-600 mt-1">Strategic legal and IP tasks for Wangui Kihiu</p>
+      </div>
+      <DataTable 
+        columns={columns} 
+        data={legalTasks} 
+        emptyMessage="No legal tasks found."
+        onUpdate={handleUpdate}
+      />
     </div>
-  );
+  )
 }
