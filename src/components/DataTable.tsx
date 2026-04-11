@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
 export interface TableRow {
   id: string | number
@@ -41,15 +41,18 @@ export default function DataTable({
     setEditValue(row[column.key])
   }
 
-  const handleSave = async () => {
+  const handleSave = async (newValue?: any) => {
     if (editingCell && onUpdate) {
+      const valueToSave = newValue !== undefined ? newValue : editValue;
+      
       // For number fields, ensure we send a number or 0
       const finalValue = editingCell.field.includes('amount') || editingCell.field.includes('kes') || editingCell.field.includes('percent')
-        ? Number(editValue) || 0
-        : editValue
+        ? Number(valueToSave) || 0
+        : valueToSave
 
       await onUpdate(editingCell.id, editingCell.field, finalValue)
       setEditingCell(null)
+      setEditValue(null)
     }
   }
 
@@ -90,15 +93,20 @@ export default function DataTable({
                       onClick={() => handleEdit(row, column)}
                     >
                       {isEditing ? (
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                           {column.editType === 'select' ? (
                             <select
-                              value={String(editValue)}
-                              onChange={(e) => setEditValue(e.target.value)}
-                              onBlur={handleSave}
+                              value={String(editValue ?? '')}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setEditValue(val);
+                                handleSave(val);
+                              }}
+                              onBlur={() => handleSave()}
                               autoFocus
-                              className="p-1 border rounded text-sm bg-white"
+                              className="p-1 border rounded text-sm bg-white w-full focus:outline-none focus:ring-1 focus:ring-[#d49a30]"
                             >
+                              <option value="" disabled>Select status...</option>
                               {column.options?.map(opt => (
                                 <option key={opt} value={opt}>{opt}</option>
                               ))}
@@ -108,10 +116,13 @@ export default function DataTable({
                               type={column.editType === 'number' ? 'text' : (column.editType || 'text')}
                               value={editValue ?? ''}
                               onChange={(e) => setEditValue(e.target.value)}
-                              onBlur={handleSave}
+                              onBlur={() => handleSave()}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                  e.currentTarget.blur();
+                                  handleSave();
+                                }
+                                if (e.key === 'Escape') {
+                                  setEditingCell(null);
                                 }
                               }}
                               autoFocus
