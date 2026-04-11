@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/client';
-import DataTable from '@/components/DataTable';
+import DataTable, { type Column } from '@/components/DataTable';
 import StatusBadge from '@/components/StatusBadge';
 
 export default async function TasksPage() {
@@ -10,13 +10,13 @@ export default async function TasksPage() {
     return <div className="text-red-500">Error loading tasks: {error.message}</div>;
   }
 
-  const columns = [
+  const columns: Column[] = [
     { key: 'title', label: 'Title' },
     { key: 'description', label: 'Description' },
     { 
       key: 'status', 
       label: 'Status',
-      render: (value: string) => <StatusBadge status={value} />
+      render: (value: unknown) => <StatusBadge status={String(value)} />
     },
     { key: 'due_date', label: 'Due Date' },
     { key: 'priority', label: 'Priority' },
