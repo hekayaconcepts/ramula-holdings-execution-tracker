@@ -1,13 +1,42 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import DataTable, { type Column } from '@/components/DataTable';
 import StatusBadge from '@/components/StatusBadge';
 
-export default async function CooPage() {
-  const supabase = createClient();
-  const { data: cooTasks, error } = await supabase.from('coo_tasks').select('*');
+export default function CooPage() {
+  const [cooTasks, setCooTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCooTasks = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error: fetchError } = await supabase.from('coo_tasks').select('*');
+        
+        if (fetchError) {
+          setError(fetchError.message);
+        } else {
+          setCooTasks(data || []);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCooTasks();
+  }, []);
+
+  if (loading) {
+    return <div className="text-white">Loading...</div>;
+  }
 
   if (error) {
-    return <div className="text-red-500">Error loading COO tasks: {error.message}</div>;
+    return <div className="text-red-500">Error loading COO tasks: {error}</div>;
   }
 
   const columns: Column[] = [
