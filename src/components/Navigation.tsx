@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 interface NavigationProps {
   user?: {
@@ -12,6 +13,14 @@ interface NavigationProps {
 
 export default function Navigation({ user, onLogout }: NavigationProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
+  };
 
   const navItems = [
     { name: 'Dashboard', href: '/dashboard' },
@@ -60,21 +69,12 @@ export default function Navigation({ user, onLogout }: NavigationProps) {
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-brand-gold">
                 <div className="py-1">
-                  {onLogout ? (
-                    <button
-                      onClick={onLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-brand-navy hover:bg-brand-light"
-                    >
-                      Logout
-                    </button>
-                  ) : (
-                    <Link
-                      href="/"
-                      className="block px-4 py-2 text-sm text-brand-navy hover:bg-brand-light"
-                    >
-                      Logout
-                    </Link>
-                  )}
+                  <button
+                    onClick={onLogout || handleLogout}
+                    className="block w-full text-left px-4 py-2 text-sm text-brand-navy hover:bg-brand-light"
+                  >
+                    Logout
+                  </button>
                 </div>
               </div>
             </div>
