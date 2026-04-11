@@ -25,19 +25,39 @@ export default function RevenuePage() {
   }, [])
 
   const handleUpdate = async (id: string | number, field: string, value: any) => {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('revenue')
-      .update({ [field]: value })
-      .eq('id', id)
-      .select()
+    try {
+      console.log(`Updating revenue ${field} for id ${id} to ${value}`);
+      const supabase = createClient()
+      
+      // Ensure the value is the correct type
+      let finalValue = value
+      if (field.includes('kes') || field.includes('amount') || field.includes('target') || field.includes('percent')) {
+        finalValue = Number(value) || 0
+      }
+      
+      const { data, error } = await supabase
+        .from('revenue')
+        .update({ [field]: finalValue })
+        .eq('id', id)
+        .select()
 
-    if (error) {
-      console.error('Error updating revenue:', error)
-      alert('Failed to update revenue')
-    } else if (data && data.length > 0) {
-      // Update local state with the returned row to ensure consistency
-      setRevenue(prev => prev.map(r => r.id === id ? { ...r, ...data[0] } : r))
+      if (error) {
+        console.error('Error updating revenue:', error)
+        alert(`Failed to update revenue: ${error.message}`)
+        return
+      }
+      
+      if (data && data.length > 0) {
+        console.log('Update successful:', data);
+        // Update local state with the returned row to ensure consistency
+        setRevenue(prev => prev.map(r => r.id === id ? { ...r, ...data[0] } : r))
+      } else {
+        console.warn('Update returned no data - checking if value was actually saved')
+        setRevenue(prev => prev.map(r => r.id === id ? { ...r, [field]: finalValue } : r))
+      }
+    } catch (err) {
+      console.error('Unexpected error updating revenue:', err)
+      alert('An unexpected error occurred while updating revenue')
     }
   }
 

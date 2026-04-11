@@ -25,17 +25,33 @@ export default function ExpensePage() {
   }, [])
 
   const handleUpdate = async (id: string | number, field: string, value: any) => {
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('expenses')
-      .update({ [field]: value })
-      .eq('id', id)
+    try {
+      console.log(`Updating expense ${field} for id ${id} to ${value}`)
+      const supabase = createClient()
+      
+      // Ensure the value is the correct type
+      let finalValue = value
+      if (field.includes('kes') || field.includes('budget') || field.includes('actual') || field.includes('variance')) {
+        finalValue = Number(value) || 0
+      }
+      
+      const { data, error } = await supabase
+        .from('expenses')
+        .update({ [field]: finalValue })
+        .eq('id', id)
+        .select()
 
-    if (error) {
-      console.error('Error updating expense:', error)
-      alert('Failed to update expense')
-    } else {
-      setExpenses(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e))
+      if (error) {
+        console.error('Error updating expense:', error)
+        alert(`Failed to update expense: ${error.message}`)
+        return
+      }
+      
+      console.log('Expense update successful:', data)
+      setExpenses(prev => prev.map(e => e.id === id ? { ...e, [field]: finalValue } : e))
+    } catch (err) {
+      console.error('Unexpected error updating expense:', err)
+      alert('An unexpected error occurred while updating expense')
     }
   }
 

@@ -26,17 +26,33 @@ export default function CeoPage() {
   }, [])
 
   const handleUpdate = async (id: string | number, field: string, value: any) => {
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('tasks')
-      .update({ [field]: value })
-      .eq('id', id)
+    try {
+      console.log(`Updating CEO task ${field} for id ${id} to ${value}`)
+      const supabase = createClient()
+      
+      // Ensure the value is the correct type
+      let finalValue = value
+      if (field.includes('percent') || field.includes('budget') || field.includes('cost')) {
+        finalValue = Number(value) || 0
+      }
+      
+      const { data, error } = await supabase
+        .from('tasks')
+        .update({ [field]: finalValue })
+        .eq('id', id)
+        .select()
 
-    if (error) {
-      console.error('Error updating task:', error)
-      alert('Failed to update task')
-    } else {
-      setCeoTasks(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t))
+      if (error) {
+        console.error('Error updating task:', error)
+        alert(`Failed to update task: ${error.message}`)
+        return
+      }
+      
+      console.log('CEO task update successful:', data)
+      setCeoTasks(prev => prev.map(t => t.id === id ? { ...t, [field]: finalValue } : t))
+    } catch (err) {
+      console.error('Unexpected error updating CEO task:', err)
+      alert('An unexpected error occurred while updating task')
     }
   }
 
