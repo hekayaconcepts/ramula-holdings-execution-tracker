@@ -26,16 +26,18 @@ export default function RevenuePage() {
 
   const handleUpdate = async (id: string | number, field: string, value: any) => {
     const supabase = createClient()
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('revenue')
       .update({ [field]: value })
       .eq('id', id)
+      .select()
 
     if (error) {
       console.error('Error updating revenue:', error)
       alert('Failed to update revenue')
-    } else {
-      setRevenue(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r))
+    } else if (data && data.length > 0) {
+      // Update local state with the returned row to ensure consistency
+      setRevenue(prev => prev.map(r => r.id === id ? { ...r, ...data[0] } : r))
     }
   }
 

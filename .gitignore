@@ -47,3 +47,4 @@ htmlcov/
 *.tmp
 *.temp
 ```
+.dyad/
