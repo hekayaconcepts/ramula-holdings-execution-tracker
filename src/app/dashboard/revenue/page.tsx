@@ -10,7 +10,7 @@ export default function RevenuePage() {
 
   const fetchRevenue = async () => {
     const supabase = createClient()
-    const { data, error } = await supabase.from('revenue').select('*').order('created_at', { ascending: false })
+    const { data, error } = await supabase.from('revenue').select('*').order('venture_name', { ascending: true })
     
     if (error) {
       console.error('Error loading revenue:', error)
@@ -98,7 +98,7 @@ export default function RevenuePage() {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold text-[#091d28]">Revenue Tracker</h1>
-          <p className="text-gray-600 mt-1">Portfolio revenue performance by stream</p>
+          <p className="text-gray-600 mt-1">Portfolio revenue performance by venture</p>
         </div>
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-sm">
           <p className="text-xs text-gray-500 uppercase font-semibold">Total Revenue YTD</p>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 export interface TableRow {
   id: string | number
@@ -35,14 +35,6 @@ export default function DataTable({
   const [editingCell, setEditingCell] = useState<{ id: string | number; field: string } | null>(null)
   const [editValue, setEditValue] = useState<any>(null)
 
-  if (!data || data.length === 0) {
-    return (
-      <div className={`p-8 text-center bg-white border border-gray-200 rounded-lg shadow-sm ${className}`}>
-        <p className="text-[#091d28] text-lg">{emptyMessage}</p>
-      </div>
-    )
-  }
-
   const handleEdit = (row: TableRow, column: Column) => {
     if (!column.editable || !onUpdate) return
     setEditingCell({ id: row.id, field: column.key })
@@ -51,9 +43,22 @@ export default function DataTable({
 
   const handleSave = async () => {
     if (editingCell && onUpdate) {
-      await onUpdate(editingCell.id, editingCell.field, editValue)
+      // For number fields, ensure we send a number or 0
+      const finalValue = editingCell.field.includes('amount') || editingCell.field.includes('kes') || editingCell.field.includes('percent')
+        ? Number(editValue) || 0
+        : editValue
+
+      await onUpdate(editingCell.id, editingCell.field, finalValue)
       setEditingCell(null)
     }
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div className={`p-8 text-center bg-white border border-gray-200 rounded-lg shadow-sm ${className}`}>
+        <p className="text-[#091d28] text-lg">{emptyMessage}</p>
+      </div>
+    )
   }
 
   return (
@@ -92,7 +97,7 @@ export default function DataTable({
                               onChange={(e) => setEditValue(e.target.value)}
                               onBlur={handleSave}
                               autoFocus
-                              className="p-1 border rounded text-sm"
+                              className="p-1 border rounded text-sm bg-white"
                             >
                               {column.options?.map(opt => (
                                 <option key={opt} value={opt}>{opt}</option>
@@ -100,13 +105,17 @@ export default function DataTable({
                             </select>
                           ) : (
                             <input
-                              type={column.editType || 'text'}
+                              type={column.editType === 'number' ? 'text' : (column.editType || 'text')}
                               value={editValue ?? ''}
-                              onChange={(e) => setEditValue(column.editType === 'number' ? Number(e.target.value) : e.target.value)}
+                              onChange={(e) => setEditValue(e.target.value)}
                               onBlur={handleSave}
-                              onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.currentTarget.blur();
+                                }
+                              }}
                               autoFocus
-                              className="p-1 border rounded text-sm w-full"
+                              className="p-1 border rounded text-sm w-full focus:outline-none focus:ring-1 focus:ring-[#d49a30]"
                             />
                           )}
                         </div>
