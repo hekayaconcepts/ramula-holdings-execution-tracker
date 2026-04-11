@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import DataTable, { type Column } from '@/components/DataTable';
+import DataTable, { type Column, type TableRow } from '@/components/DataTable';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<TableRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
