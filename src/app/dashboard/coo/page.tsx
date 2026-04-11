@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/client';
-import DataTable from '@/components/DataTable';
+import DataTable, { type Column } from '@/components/DataTable';
 import StatusBadge from '@/components/StatusBadge';
 
 export default async function CooPage() {
@@ -10,13 +10,13 @@ export default async function CooPage() {
     return <div className="text-red-500">Error loading COO tasks: {error.message}</div>;
   }
 
-  const columns = [
+  const columns: Column[] = [
     { key: 'task', label: 'Task' },
     { key: 'department', label: 'Department' },
     { 
       key: 'status', 
       label: 'Status',
-      render: (value: string) => <StatusBadge status={value} />
+      render: (value: unknown) => <StatusBadge status={String(value)} />
     },
     { key: 'due_date', label: 'Due Date' },
     { key: 'assignee', label: 'Assignee' },
